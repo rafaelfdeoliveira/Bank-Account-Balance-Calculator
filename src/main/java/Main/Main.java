@@ -9,7 +9,7 @@ public class Main {
         Path inputPath = Path.of("src","main","resources", "operacoes.csv");
         BalanceCalculator balanceCalculator = new BalanceCalculator(inputPath);
 
-        // Check the Bank Statement Files for each Bank Account in the target/output directory. The operations are presented in chronological order. The name of the file is the bankAccountId.
+        // Save the Bank Statement File for each Bank Account in the target/output directory. The operations are presented in chronological order. The name of the file is the bankAccountId.
         Path outputDirPath = Path.of("target", "output");
         balanceCalculator.saveBankStatements(outputDirPath);
     }

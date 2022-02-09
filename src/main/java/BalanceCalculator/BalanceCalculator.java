@@ -16,15 +16,40 @@ import java.util.*;
 
 
 public class BalanceCalculator {
-    // HashMap where keys are unique bankAccountIds and each value is a TreeSet of the bankingOperations
+    // Keys are bankAccountIds
     private final HashMap<String, TreeSet<BankingOperation>> operationsMap = new HashMap<>();
-
-    // HashMap where keys are unique bankAccountIds and each value is a BankAccount object
     private final HashMap<String, BankAccount> accountsMap = new HashMap<>();
 
     public BalanceCalculator(Path path) {
         this.importAllData(path);
         this.executeOperations();
+    }
+
+    public void saveBankStatements(Path outputDirPath) {
+        this.createDirIfNotExists(outputDirPath);
+        this.operationsMap.forEach((accountId, operations) -> {
+            Path outputPath = Path.of(outputDirPath.toString(), accountId + ".txt");
+            BankAccount bankAccount = this.accountsMap.get(accountId);
+            ArrayList<String> bankStatementInfo = new ArrayList<>();
+            bankStatementInfo.add("Banco " + bankAccount.getBankName());
+            bankStatementInfo.add("Agencia: " + bankAccount.getBranchId());
+            bankStatementInfo.add("Conta: " + bankAccount.getAccountNumber());
+            bankStatementInfo.add("");
+            bankStatementInfo.add("       Data           Operador" + " ".repeat(7) + "Tipo" + " ".repeat(7) + "Valor");
+
+            for (BankingOperation op : operations) {
+                String operationInfo = op.getDate().toString() + " ".repeat(3) + op.getOperator() + " ".repeat(15 - op.getOperator().length()) + op.getType().toString() + " ".repeat(11 - op.getType().toString().length()) + op.getAmount();
+                bankStatementInfo.add(operationInfo);
+            }
+
+            bankStatementInfo.add("");
+            bankStatementInfo.add("Saldo: " + bankAccount.getBalance());
+            try {
+                Files.write(outputPath, bankStatementInfo);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        });
     }
 
     private void importAllData(Path path) {
@@ -69,34 +94,11 @@ public class BalanceCalculator {
         });
     }
 
-    public void saveBankStatements(Path outputDirPath) {
+    private void createDirIfNotExists(Path dirPath) {
         try {
-            if (Files.notExists(outputDirPath)) Files.createDirectory(outputDirPath);
+            if (Files.notExists(dirPath)) Files.createDirectory(dirPath);
         } catch (IOException e) {
             e.printStackTrace();
         }
-        this.operationsMap.forEach((accountId, operations) -> {
-            Path outputPath = Path.of(outputDirPath.toString(), accountId + ".txt");
-            BankAccount bankAccount = this.accountsMap.get(accountId);
-            ArrayList<String> bankStatementInfo = new ArrayList<>();
-            bankStatementInfo.add("Banco " + bankAccount.getBankName());
-            bankStatementInfo.add("Agencia: " + bankAccount.getBranchId());
-            bankStatementInfo.add("Conta: " + bankAccount.getAccountNumber());
-            bankStatementInfo.add("");
-            bankStatementInfo.add("       Data           Operador" + " ".repeat(7) + "Tipo" + " ".repeat(7) + "Valor");
-
-            for (BankingOperation op : operations) {
-                String operationInfo = op.getDate().toString() + " ".repeat(3) + op.getOperator() + " ".repeat(15 - op.getOperator().length()) + op.getType().toString() + " ".repeat(11 - op.getType().toString().length()) + op.getAmount();
-                bankStatementInfo.add(operationInfo);
-            }
-
-            bankStatementInfo.add("");
-            bankStatementInfo.add("Saldo: " + bankAccount.getBalance());
-            try {
-                Files.write(outputPath, bankStatementInfo);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        });
     }
 }
