@@ -69,9 +69,14 @@ public class BalanceCalculator {
         });
     }
 
-    public void saveBankStatements() {
+    public void saveBankStatements(Path outputDirPath) {
+        try {
+            if (Files.notExists(outputDirPath)) Files.createDirectory(outputDirPath);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         this.operationsMap.forEach((accountId, operations) -> {
-            Path outputPath = Path.of("src", "main", "resources", accountId + ".txt");
+            Path outputPath = Path.of(outputDirPath.toString(), accountId + ".txt");
             BankAccount bankAccount = this.accountsMap.get(accountId);
             ArrayList<String> bankStatementInfo = new ArrayList<>();
             bankStatementInfo.add("Banco " + bankAccount.getBankName());

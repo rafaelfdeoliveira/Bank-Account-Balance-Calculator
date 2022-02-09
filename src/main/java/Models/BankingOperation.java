@@ -22,7 +22,7 @@ public class BankingOperation implements Comparable<BankingOperation> {
         BankingOperation otherOperation = (BankingOperation) o;
         return  this.operator.equalsIgnoreCase(otherOperation.getOperator()) &&
                 this.type.equals(otherOperation.getType()) &&
-                Math.abs(this.amount - otherOperation.getAmount()) < 0.1 &&
+                this.amount == otherOperation.getAmount() &&
                 this.date.equals(otherOperation.getDate()) &&
                 this.bankAccountId.equals(otherOperation.getBankAccountId());
     }
